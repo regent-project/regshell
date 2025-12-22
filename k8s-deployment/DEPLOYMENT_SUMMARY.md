@@ -27,7 +27,7 @@ k8s-deployment/
 │   ├── cleanup.sh             # Remove all resources
 │   └── ubuntu-vm-test.sh      # All-in-one Ubuntu VM setup
 ├── inventory/                  # Configuration files
-│   └── test-inventory.yaml    # Sample regent-console inventory
+│   └── test-inventory.yaml    # Sample regshell inventory
 └── docs/                       # Documentation
     ├── TESTING.md             # Testing procedures
     └── TROUBLESHOOTING.md     # Common issues and solutions
@@ -70,7 +70,7 @@ k8s-deployment/
 
 ### Method 1: Fedora Quick Deploy
 ```bash
-cd ~/code/regent-console/k8s-deployment
+cd ~/code/regshell/k8s-deployment
 ./scripts/setup-fedora.sh
 ./scripts/deploy.sh
 ./scripts/verify.sh
@@ -78,7 +78,7 @@ cd ~/code/regent-console/k8s-deployment
 
 ### Method 2: Ubuntu Quick Deploy
 ```bash
-cd ~/code/regent-console/k8s-deployment
+cd ~/code/regshell/k8s-deployment
 ./scripts/setup-ubuntu.sh
 ./scripts/deploy.sh
 ./scripts/verify.sh
@@ -87,7 +87,7 @@ cd ~/code/regent-console/k8s-deployment
 ### Method 3: Ubuntu VM All-in-One
 For testing on fresh Ubuntu VM in GNOME Boxes:
 ```bash
-cd ~/code/regent-console/k8s-deployment
+cd ~/code/regshell/k8s-deployment
 ./scripts/ubuntu-vm-test.sh
 ```
 
@@ -132,18 +132,18 @@ curl http://$MINIKUBE_IP:30080/health
 curl http://$MINIKUBE_IP:30080/ready
 ```
 
-## Integration with regent-console
+## Integration with regshell
 
 ### Update Inventory
 ```bash
-cd ~/code/regent-console
+cd ~/code/regshell
 MINIKUBE_IP=$(minikube ip)
 sed -i "s/192\.168\.49\.2/$MINIKUBE_IP/g" k8s-deployment/inventory/test-inventory.yaml
 ```
 
 ### Start Console
 ```bash
-./target/release/regent-console -i k8s-deployment/inventory/test-inventory.yaml
+./target/release/regshell -i k8s-deployment/inventory/test-inventory.yaml
 ```
 
 ### Example Usage
@@ -392,7 +392,7 @@ Your deployment is successful when:
 3. ✅ All 9 services are present
 4. ✅ SSH connections work to all nodes
 5. ✅ HTTP health endpoints respond
-6. ✅ regent-console can connect and execute commands
+6. ✅ regshell can connect and execute commands
 7. ✅ No recurring pod restarts or errors
 
 Run `./scripts/verify.sh` to check all criteria automatically.

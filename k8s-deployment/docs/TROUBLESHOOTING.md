@@ -385,11 +385,11 @@ minikube delete
 minikube start --disk-size=40g
 ```
 
-## regent-console Issues
+## regshell Issues
 
 ### Cannot connect to hosts
 
-**Problem**: regent-console cannot SSH to hosts
+**Problem**: regshell cannot SSH to hosts
 
 **Diagnose**:
 ```bash
@@ -400,7 +400,7 @@ ssh -p 30101 root@$(minikube ip)
 cat inventory/test-inventory.yaml
 
 # Test with increased verbosity
-regent-console -i inventory/test-inventory.yaml
+regshell -i inventory/test-inventory.yaml
 verbosity 2
 cd ubuntu_nodes
 ping

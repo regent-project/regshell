@@ -40,13 +40,13 @@ ssh -p 30222 root@$MINIKUBE_IP
 ssh root@<pod-ip>
 ```
 
-## Testing with regent-console
+## Testing with regshell
 
 ### Setup
 
-1. Build regent-console if not already built:
+1. Build regshell if not already built:
 ```bash
-cd /path/to/regent-console
+cd /path/to/regshell
 cargo build --release
 ```
 
@@ -59,8 +59,8 @@ sed -i "s/192.168.49.2/$MINIKUBE_IP/g" k8s-deployment/inventory/test-inventory.y
 ### Basic Console Tests
 
 ```bash
-# Start regent-console with inventory
-./target/release/regent-console -i k8s-deployment/inventory/test-inventory.yaml
+# Start regshell with inventory
+./target/release/regshell -i k8s-deployment/inventory/test-inventory.yaml
 
 # In the console:
 cd ubuntu_nodes
@@ -168,7 +168,7 @@ Should complete in < 2 seconds.
 ### Parallel Task Execution
 
 ```bash
-# In regent-console
+# In regshell
 forks 6
 cd ubuntu_nodes
 command args="dd if=/dev/zero of=/tmp/test bs=1M count=100"
@@ -302,7 +302,7 @@ A successful deployment should:
 3. ✓ All NodePort services accessible
 4. ✓ SSH connections working
 5. ✓ HTTP health endpoints responding
-6. ✓ regent-console can connect and execute commands
+6. ✓ regshell can connect and execute commands
 7. ✓ Parallel execution works correctly
 8. ✓ No pod restarts or errors in logs
 

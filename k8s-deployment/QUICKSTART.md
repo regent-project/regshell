@@ -15,7 +15,7 @@ Get your 6-node Ubuntu test environment running in under 10 minutes!
 ### Step 1: Navigate to deployment directory
 
 ```bash
-cd ~/code/regent-console/k8s-deployment
+cd ~/code/regshell/k8s-deployment
 ```
 
 ### Step 2: Run setup script
@@ -76,29 +76,29 @@ ssh -p 30102 root@$MINIKUBE_IP
 ./scripts/test-ssh.sh
 ```
 
-## Using with regent-console
+## Using with regshell
 
 ### Update inventory file
 
 ```bash
-cd ~/code/regent-console
+cd ~/code/regshell
 MINIKUBE_IP=$(minikube ip)
 sed -i "s/192\.168\.49\.2/$MINIKUBE_IP/g" k8s-deployment/inventory/test-inventory.yaml
 ```
 
-### Start regent-console
+### Start regshell
 
 ```bash
 # Build if not already built
 cargo build --release
 
 # Start with inventory
-./target/release/regent-console -i k8s-deployment/inventory/test-inventory.yaml
+./target/release/regshell -i k8s-deployment/inventory/test-inventory.yaml
 ```
 
 ### Try it out
 
-In the regent-console prompt:
+In the regshell prompt:
 
 ```
 cd ubuntu_nodes
@@ -130,7 +130,7 @@ sudo apt install git
 
 # Clone your repo (adjust URL as needed)
 git clone <your-repo-url>
-cd regent-console/k8s-deployment
+cd regshell/k8s-deployment
 
 # Run setup
 ./scripts/setup-ubuntu.sh

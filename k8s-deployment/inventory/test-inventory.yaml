@@ -1,9 +1,9 @@
 ---
-# Sample inventory for regent-console
+# Sample inventory for regshell
 # This inventory defines the 6 Ubuntu test nodes and bastion host
 # 
 # Usage:
-#   regent-console -i inventory/test-inventory.yaml
+#   regshell -i inventory/test-inventory.yaml
 
 # Get minikube IP first:
 # MINIKUBE_IP=$(minikube ip)

@@ -130,7 +130,7 @@ k8s-deployment/
 │   ├── cleanup.sh               # Remove all resources
 │   └── test-ssh.sh              # Test SSH connectivity
 ├── inventory/
-│   └── test-inventory.yaml      # Sample inventory for regent-console
+│   └── test-inventory.yaml      # Sample inventory for regshell
 └── docs/
     ├── TESTING.md               # Testing guide
     └── TROUBLESHOOTING.md       # Common issues and solutions
@@ -153,14 +153,14 @@ Each node is configured with:
 - **Ubuntu Nodes**: `root/testnode123` (password)
 - **Bastion**: Public key authentication (key in manifest)
 
-## Usage with regent-console
+## Usage with regshell
 
 ```bash
-# Start regent-console with inventory
-regent-console -i inventory/test-inventory.yaml
+# Start regshell with inventory
+regshell -i inventory/test-inventory.yaml
 
 # Or connect to specific nodes
-regent-console ubuntu-nodes
+regshell ubuntu-nodes
 
 # Example commands
 cd ubuntu-nodes
@@ -207,7 +207,7 @@ To test on an Ubuntu VM in GNOME Boxes:
 2. Install and setup:
    ```bash
    git clone <repo>
-   cd regent-console/k8s-deployment
+   cd regshell/k8s-deployment
    ./scripts/setup-ubuntu.sh
    ./scripts/deploy.sh
    ```
@@ -224,4 +224,4 @@ See `docs/TROUBLESHOOTING.md` for common issues and solutions.
 
 ## License
 
-Same as regent-console project.
+Same as regshell project.
