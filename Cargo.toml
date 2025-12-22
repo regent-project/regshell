@@ -1,0 +1,19 @@
+[package]
+name = "regent-console"
+version = "0.1.0"
+edition = "2024"
+description = "Interactive REPL console for regent-sdk"
+repository = "https://github.com/regent-project/regent-console"
+license = "Apache-2.0"
+
+[[bin]]
+name = "regent-console"
+path = "src/main.rs"
+
+[dependencies]
+regent-sdk = { path = "../regent-sdk" }
+rustyline = "14.0.0"
+clap = { version = "4.5.23", features = ["derive"] }
+
+[lib]
+doctest = false
