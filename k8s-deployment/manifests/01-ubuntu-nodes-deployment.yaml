@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-test-nodes
+  namespace: default
+  labels:
+    app: ubuntu-test-nodes
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: ubuntu-test-node
+  template:
+    metadata:
+      labels:
+        app: ubuntu-test-node
+    spec:
+      containers:
+      - name: test-node
+        image: ubuntu:22.04
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -e
+
+            # Update and install required packages
+            apt-get update
+            apt-get install -y openssh-server python3 curl netcat-openbsd iproute2 iputils-ping
+
+            # Configure SSH
+            mkdir -p /var/run/sshd
+            echo 'root:testnode123' | chpasswd
+            sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+            sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+            # Generate SSH host keys
+            ssh-keygen -A
+
+            # Create a simple HTTP health server
+            cat > /health_server.py << 'EOF'
+            #!/usr/bin/env python3
+            import http.server
+            import socketserver
+            import json
+            import os
+            import threading
+            import time
+            from datetime import datetime
+
+            class HealthHandler(http.server.BaseHTTPRequestHandler):
+                def do_GET(self):
+                    if self.path == '/health':
+                        self.send_response(200)
+                        self.send_header('Content-type', 'application/json')
+                        self.end_headers()
+                        health_data = {
+                            "status": "healthy",
+                            "hostname": os.environ.get('HOSTNAME', 'unknown'),
+                            "pod_ip": os.environ.get('POD_IP', 'unknown'),
+                            "timestamp": datetime.now().isoformat(),
+                            "uptime": time.time() - start_time
+                        }
+                        self.wfile.write(json.dumps(health_data, indent=2).encode('utf-8'))
+                    elif self.path == '/ready':
+                        self.send_response(200)
+                        self.send_header('Content-type', 'application/json')
+                        self.end_headers()
+                        ready_data = {
+                            "status": "ready",
+                            "ssh_running": True,
+                            "hostname": os.environ.get('HOSTNAME', 'unknown')
+                        }
+                        self.wfile.write(json.dumps(ready_data, indent=2).encode('utf-8'))
+                    else:
+                        self.send_response(404)
+                        self.send_header('Content-type', 'text/plain')
+                        self.end_headers()
+                        self.wfile.write(b'Not Found')
+                
+                def log_message(self, format, *args):
+                    return  # Suppress default logging
+
+            start_time = time.time()
+            PORT = 8080
+            Handler = HealthHandler
+
+            with socketserver.TCPServer(("", PORT), Handler) as httpd:
+                print(f"Health server running on port {PORT}")
+                httpd.serve_forever()
+            EOF
+
+            chmod +x /health_server.py
+
+            # Start health server in background
+            python3 /health_server.py &
+
+            # Wait a moment for health server to start
+            sleep 2
+
+            # Start SSH daemon
+            echo "Starting SSH daemon..."
+            /usr/sbin/sshd -D &
+
+            # Keep container running and show status
+            echo "Container ready - SSH on port 22, Health check on port 8080"
+            echo "Hostname: $(hostname)"
+            echo "SSH credentials: root/testnode123"
+
+            # Keep container alive
+            tail -f /dev/null
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        ports:
+        - containerPort: 22
+          name: ssh
+          protocol: TCP
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "512Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3

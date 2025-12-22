@@ -1,0 +1,94 @@
+---
+# Sample inventory for regent-console
+# This inventory defines the 6 Ubuntu test nodes and bastion host
+# 
+# Usage:
+#   regent-console -i inventory/test-inventory.yaml
+
+# Get minikube IP first:
+# MINIKUBE_IP=$(minikube ip)
+
+# Ubuntu test nodes
+# Access via NodePort on minikube IP
+all:
+  hosts:
+    # Individual Ubuntu nodes with direct NodePort access
+    ubuntu-node-1:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30101
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    ubuntu-node-2:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30102
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    ubuntu-node-3:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30103
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    ubuntu-node-4:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30104
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    ubuntu-node-5:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30105
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    ubuntu-node-6:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30106
+      ansible_user: root
+      ansible_password: testnode123
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+    
+    # SSH Bastion (requires SSH key authentication)
+    bastion:
+      ansible_host: 192.168.49.2  # Replace with your minikube ip
+      ansible_port: 30222
+      ansible_user: root
+      # Uses SSH key authentication - ensure your key is in manifests/03-ssh-bastion.yaml
+      ansible_ssh_common_args: '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+
+  children:
+    ubuntu_nodes:
+      hosts:
+        ubuntu-node-1:
+        ubuntu-node-2:
+        ubuntu-node-3:
+        ubuntu-node-4:
+        ubuntu-node-5:
+        ubuntu-node-6:
+    
+    bastion_hosts:
+      hosts:
+        bastion:
+    
+    # Example groupings
+    web_servers:
+      hosts:
+        ubuntu-node-1:
+        ubuntu-node-2:
+    
+    database_servers:
+      hosts:
+        ubuntu-node-3:
+        ubuntu-node-4:
+    
+    app_servers:
+      hosts:
+        ubuntu-node-5:
+        ubuntu-node-6:

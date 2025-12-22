@@ -1,0 +1,96 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-1
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-1
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30101
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-2
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-2
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30102
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-3
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-3
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30103
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-4
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-4
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30104
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-5
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-5
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30105
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ubuntu-node-6
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    pod-name: node-6
+  ports:
+  - name: ssh
+    port: 22
+    targetPort: 22
+    nodePort: 30106
+    protocol: TCP
