@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-regent-console is an interactive REPL console for regent-sdk, similar to `ansible-console`. It provides an interactive shell for executing ad-hoc tasks on remote hosts with multiplexed parallel execution.
+regshell is an interactive REPL console for regent-sdk, similar to `ansible-console`. It provides an interactive shell for executing ad-hoc tasks on remote hosts with multiplexed parallel execution.
 
 ## Build & Run Commands
 
@@ -21,13 +21,13 @@ cargo install --path .
 ### Run
 ```bash
 # Start with localhost only
-./target/release/regent-console
+./target/release/regshell
 
 # Start with inventory file
-./target/release/regent-console -i inventory.yaml
+./target/release/regshell -i inventory.yaml
 
 # Start with specific host pattern
-./target/release/regent-console webservers
+./target/release/regshell webservers
 ```
 
 ### Testing

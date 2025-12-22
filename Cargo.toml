@@ -1,13 +1,13 @@
 [package]
-name = "regent-console"
+name = "regshell"
 version = "0.1.0"
 edition = "2024"
 description = "Interactive REPL console for regent-sdk"
-repository = "https://github.com/regent-project/regent-console"
+repository = "https://github.com/regent-project/regshell"
 license = "Apache-2.0"
 
 [[bin]]
-name = "regent-console"
+name = "regshell"
 path = "src/main.rs"
 
 [dependencies]

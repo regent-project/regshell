@@ -2,7 +2,7 @@
 
 Interactive REPL console for [regent-sdk](https://github.com/regent-project/regent-sdk).
 
-Similar to `ansible-console`, regent-console provides an interactive shell for executing ad-hoc tasks on remote hosts with multiplexed parallel execution.
+Similar to `ansible-console`, regshell provides an interactive shell for executing ad-hoc tasks on remote hosts with multiplexed parallel execution.
 
 ## Features
 
@@ -23,7 +23,7 @@ Or build from source:
 
 ```bash
 cargo build --release
-./target/release/regent-console
+./target/release/regshell
 ```
 
 ## Usage
@@ -32,13 +32,13 @@ cargo build --release
 
 ```bash
 # Start with localhost only
-regent-console
+regshell
 
 # Start with inventory file
-regent-console -i inventory.yaml
+regshell -i inventory.yaml
 
 # Start with specific host pattern
-regent-console webservers
+regshell webservers
 ```
 
 ### Console Commands

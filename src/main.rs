@@ -8,7 +8,7 @@ use rustyline::DefaultEditor;
 use std::env;
 
 #[derive(Parser, Debug)]
-#[command(name = "regent-console")]
+#[command(name = "regshell")]
 #[command(about = "Interactive REPL console for regent-sdk", long_about = None)]
 struct Args {
     /// Inventory file (YAML format)
