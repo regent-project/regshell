@@ -65,9 +65,9 @@ cargo test --lib commands
 
 **ConsoleCommandHandler** (`src/commands.rs`): Command execution logic
 - Executes console commands by updating state or displaying information
-- Converts module invocations to YAML task format for regent-sdk
-- Builds JobList from current hosts and executes tasks using regent-sdk
-- Injects user variables into job context for template expansion
+- Converts module invocations to a regent-sdk ExpectedState YAML description
+- Enforces the expected state on the selected hosts via regent-sdk, `forks` hosts at a time
+- Injects user variables into each host's template context
 - Returns formatted output or error results
 
 **Main REPL** (`src/main.rs`): Entry point and interactive loop
@@ -82,17 +82,17 @@ cargo test --lib commands
 2. ConsoleCommand + ConsoleState → ConsoleCommandHandler
 3. Handler executes command:
    - Console commands: Update state or display info
-   - Module commands: Build YAML → Create JobList → Execute via regent-sdk → Display results
+   - Module commands: Build ExpectedState YAML → Parse via regent-sdk → Enforce on selected hosts → Display results
 4. State changes reflected in prompt for next iteration
 
 ## Dependencies
 
-**regent-sdk** (path: ../regent-sdk): Core automation library providing:
-- Host and HostList types for inventory management
-- Job and JobList for task execution
-- Module implementations (apt, yum, dnf, service, command, ping, debug, lineinfile)
+**regent-sdk** (crates.io, version 0.12): Core automation library providing:
+- ManagedHost and ManagedHostBuilder for host connection management
+- ExpectedState and Attribute types for declarative expected states
+- Module implementations (apt, yum/dnf, pacman, service, command, ping, debug, lineinfile, user, group, cron, hostname, dns, dhcp, iptables, template, ollama)
 - Connection management and SSH handling
-- Task templating and variable substitution
+- Template rendering and variable substitution
 
 **rustyline**: Provides readline-like functionality for the REPL (history, editing, completions)
 
@@ -101,32 +101,32 @@ cargo test --lib commands
 ## Important Design Patterns
 
 ### Module Execution Pattern
-Module invocations are converted to YAML tasklists that regent-sdk can execute:
-```rust
-// User input: "apt package=nginx state=present"
-// Becomes YAML:
+Module invocations are converted to a regent-sdk ExpectedState YAML description that regent-sdk can parse and enforce:
+```yaml
+# User input: "apt package=nginx state=present"
+# Becomes YAML:
 ---
-- name: Console task
-  steps:
-    - name: Execute module
-      apt:
-        package: 'nginx'
-        state: 'present'
+Attributes:
+  - Name: Console task
+    Timeout: 30
+    Privilege: !None
+    Detail: !Apt
+      Package: 'nginx'
+      State: 'Present'
 ```
 
 ### Variable Templating
-Variables set with `set key value` are injected into each Job's context before execution, enabling template expansion in module parameters (e.g., `package={{package_name}}`).
+Variables set with `set key value` are injected into each host's template context before execution, enabling template expansion in module parameters (e.g., `package={{package_name}}`).
 
 ### Host Filtering
-The `cd` command updates `current_pattern`, triggering `update_current_hosts()` which filters the full hostlist:
+The `cd` command updates `current_pattern`, triggering `update_current_hosts()` which filters the connected hosts:
 - Pattern "all" includes all hosts
-- Otherwise, matches host addresses (substring) or group membership (exact)
+- Otherwise, matches host ids (substring)
 
 ## Console Commands Reference
 
-- `cd <pattern>` - Filter hosts by pattern or group name
+- `cd <pattern>` - Filter hosts by host id pattern
 - `list` - Show filtered hosts in current selection
-- `list groups` - Show all available groups from inventory
 - `vars` - Display current variable bindings
 - `set <key> <value>` - Define variable for template substitution
 - `sudo on|off` - Toggle sudo for subsequent module executions
