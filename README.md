@@ -44,11 +44,10 @@ regshell webservers
 ### Console Commands
 
 ```
-cd <pattern>           Change to host pattern or group
+cd <pattern>           Change to host id pattern ("all" selects every host)
 list                   List hosts in current selection
-list groups            List available groups
 vars                   Show current variables
-set <key> <value>      Set a variable
+set <key> <value>      Set a variable (available in templates)
 sudo on|off            Toggle sudo for subsequent commands
 forks <num>            Set number of parallel forks
 verbosity <num>        Set verbosity level
@@ -110,18 +109,28 @@ Example: `dave@webservers (3)[f:5]$`
 
 ## Available Modules
 
+Modules map to regent-sdk attributes and their keys map to the attribute
+YAML fields. An optional `timeout=<seconds>` parameter can be passed to any
+module (default: 30).
+
 - **apt**: Package management (Debian/Ubuntu)
-- **yum**: Package management (RHEL/CentOS)
-- **dnf**: Package management (Fedora)
+- **yum**, **dnf**: Package management (RHEL/CentOS/Fedora)
+- **pacman**: Package management (Arch)
 - **service**: Service management
 - **command**: Execute shell commands
 - **ping**: Test connectivity
 - **debug**: Display debug information
 - **lineinfile**: Edit lines in files
+- **user**, **group**: Users and groups management
+- **cron**: Cron jobs management
+- **hostname**: Hostname management
+- **dns**, **dhcp**, **iptables**: Network configuration
+- **template**: Render a template to a destination file
+- **ollama**: Ollama (AI) integration
 
 ## Dependencies
 
-- [regent-sdk](../regent-sdk): Core automation library
+- [regent-sdk](https://crates.io/crates/regent-sdk) (from crates.io): Core automation library
 - [rustyline](https://crates.io/crates/rustyline): Line editing and history
 - [clap](https://crates.io/crates/clap): Command-line argument parsing
 

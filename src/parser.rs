@@ -1,10 +1,9 @@
-use regent_sdk::error::Error;
+use regent_sdk::error::RegentError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ConsoleCommand {
     Cd(String),
     List,
-    ListGroups,
     Help,
     Exit,
     Vars,
@@ -18,11 +17,13 @@ pub enum ConsoleCommand {
 pub struct ConsoleParser;
 
 impl ConsoleParser {
-    pub fn parse(input: &str) -> Result<ConsoleCommand, Error> {
+    pub fn parse(input: &str) -> Result<ConsoleCommand, RegentError> {
         let trimmed = input.trim();
-        
+
         if trimmed.is_empty() {
-            return Err(Error::FailureToParseContent("Empty command".to_string()));
+            return Err(RegentError::FailureToParseContent(
+                "Empty command".to_string(),
+            ));
         }
 
         let parts: Vec<&str> = trimmed.split_whitespace().collect();
@@ -31,25 +32,19 @@ impl ConsoleParser {
         match command {
             "cd" => {
                 if parts.len() < 2 {
-                    return Err(Error::FailureToParseContent(
+                    return Err(RegentError::FailureToParseContent(
                         "cd requires a pattern argument".to_string(),
                     ));
                 }
                 Ok(ConsoleCommand::Cd(parts[1].to_string()))
             }
-            "list" => {
-                if parts.len() > 1 && parts[1] == "groups" {
-                    Ok(ConsoleCommand::ListGroups)
-                } else {
-                    Ok(ConsoleCommand::List)
-                }
-            }
+            "list" => Ok(ConsoleCommand::List),
             "help" | "?" => Ok(ConsoleCommand::Help),
             "exit" | "quit" => Ok(ConsoleCommand::Exit),
             "vars" => Ok(ConsoleCommand::Vars),
             "set" => {
                 if parts.len() < 3 {
-                    return Err(Error::FailureToParseContent(
+                    return Err(RegentError::FailureToParseContent(
                         "set requires key and value arguments".to_string(),
                     ));
                 }
@@ -60,40 +55,40 @@ impl ConsoleParser {
             }
             "sudo" => {
                 if parts.len() < 2 {
-                    return Err(Error::FailureToParseContent(
+                    return Err(RegentError::FailureToParseContent(
                         "sudo requires 'on' or 'off' argument".to_string(),
                     ));
                 }
                 match parts[1] {
                     "on" | "true" | "yes" => Ok(ConsoleCommand::Sudo(true)),
                     "off" | "false" | "no" => Ok(ConsoleCommand::Sudo(false)),
-                    _ => Err(Error::FailureToParseContent(
+                    _ => Err(RegentError::FailureToParseContent(
                         "sudo argument must be 'on' or 'off'".to_string(),
                     )),
                 }
             }
             "forks" => {
                 if parts.len() < 2 {
-                    return Err(Error::FailureToParseContent(
+                    return Err(RegentError::FailureToParseContent(
                         "forks requires a number argument".to_string(),
                     ));
                 }
                 match parts[1].parse::<usize>() {
                     Ok(num) => Ok(ConsoleCommand::Forks(num)),
-                    Err(_) => Err(Error::FailureToParseContent(
+                    Err(_) => Err(RegentError::FailureToParseContent(
                         "forks argument must be a number".to_string(),
                     )),
                 }
             }
             "verbosity" => {
                 if parts.len() < 2 {
-                    return Err(Error::FailureToParseContent(
+                    return Err(RegentError::FailureToParseContent(
                         "verbosity requires a number argument".to_string(),
                     ));
                 }
                 match parts[1].parse::<u8>() {
                     Ok(num) => Ok(ConsoleCommand::Verbosity(num)),
-                    Err(_) => Err(Error::FailureToParseContent(
+                    Err(_) => Err(RegentError::FailureToParseContent(
                         "verbosity argument must be a number".to_string(),
                     )),
                 }
@@ -105,12 +100,12 @@ impl ConsoleParser {
         }
     }
 
-    fn parse_module_invocation(input: &str) -> Result<ConsoleCommand, Error> {
+    fn parse_module_invocation(input: &str) -> Result<ConsoleCommand, RegentError> {
         // Parse: "module_name key1=value1 key2=value2"
         let parts: Vec<&str> = input.split_whitespace().collect();
-        
+
         if parts.is_empty() {
-            return Err(Error::FailureToParseContent(
+            return Err(RegentError::FailureToParseContent(
                 "Invalid module invocation".to_string(),
             ));
         }
@@ -121,10 +116,10 @@ impl ConsoleParser {
         for part in &parts[1..] {
             if let Some(eq_pos) = part.find('=') {
                 let key = part[..eq_pos].to_string();
-                let value = part[eq_pos + 1..].to_string();
+                let value = Self::strip_quotes(part[eq_pos + 1..].to_string());
                 params.push((key, value));
             } else {
-                return Err(Error::FailureToParseContent(format!(
+                return Err(RegentError::FailureToParseContent(format!(
                     "Invalid parameter format: '{}'. Expected key=value",
                     part
                 )));
@@ -132,6 +127,19 @@ impl ConsoleParser {
         }
 
         Ok(ConsoleCommand::Module(module_name, params))
+    }
+
+    fn strip_quotes(value: String) -> String {
+        if value.len() >= 2 {
+            let first = value.chars().next().unwrap();
+            let last = value.chars().last().unwrap();
+
+            if (first == '"' && last == '"') || (first == '\'' && last == '\'') {
+                return value[1..value.len() - 1].to_string();
+            }
+        }
+
+        value
     }
 }
 
@@ -143,7 +151,10 @@ mod tests {
     fn test_parse_cd() {
         let result = ConsoleParser::parse("cd webservers");
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), ConsoleCommand::Cd("webservers".to_string()));
+        assert_eq!(
+            result.unwrap(),
+            ConsoleCommand::Cd("webservers".to_string())
+        );
     }
 
     #[test]
@@ -151,13 +162,6 @@ mod tests {
         let result = ConsoleParser::parse("list");
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), ConsoleCommand::List);
-    }
-
-    #[test]
-    fn test_parse_list_groups() {
-        let result = ConsoleParser::parse("list groups");
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), ConsoleCommand::ListGroups);
     }
 
     #[test]
@@ -169,6 +173,18 @@ mod tests {
             assert_eq!(params.len(), 2);
             assert_eq!(params[0], ("package".to_string(), "nginx".to_string()));
             assert_eq!(params[1], ("state".to_string(), "present".to_string()));
+        } else {
+            panic!("Expected Module command");
+        }
+    }
+
+    #[test]
+    fn test_parse_module_strips_quotes() {
+        let result = ConsoleParser::parse("command cmd=\"uptime\"");
+        assert!(result.is_ok());
+        if let ConsoleCommand::Module(name, params) = result.unwrap() {
+            assert_eq!(name, "command");
+            assert_eq!(params, vec![("cmd".to_string(), "uptime".to_string())]);
         } else {
             panic!("Expected Module command");
         }

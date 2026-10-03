@@ -1,6 +1,6 @@
 [package]
 name = "regshell"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Interactive REPL console for regent-sdk"
 repository = "https://github.com/regent-project/regshell"
@@ -11,9 +11,12 @@ name = "regshell"
 path = "src/main.rs"
 
 [dependencies]
-regent-sdk = { path = "../regent-sdk" }
+regent-sdk = "0.12.0"
 rustyline = "14.0.0"
 clap = { version = "4.5.23", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread"] }
+yaml_serde = "0.10.7"
 
 [lib]
 doctest = false
